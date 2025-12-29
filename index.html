@@ -2,140 +2,137 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GenLingo Premium</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    
+    <title>GenLingo Premium AI</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <style>
-        :root { --primary: #2563eb; --accent: #3b82f6; --bg: #fdfdfd; --text: #0f172a; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { 
+            --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --nav: #0f172a; 
+        }
+        /* Dark Mode Colors */
+        body.dark { 
+            --bg: #020617; --card: #1e293b; --text: #f1f5f9; --nav: #000000; 
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; transition: background 0.3s, color 0.3s; }
         
         body { 
-            font-family: -apple-system, system-ui, sans-serif; 
-            background: #f1f5f9; margin: 0; color: var(--text); overflow-x: hidden;
+            font-family: -apple-system, sans-serif; background: var(--bg); 
+            margin: 0; padding: env(safe-area-inset-top) 20px 120px 20px; color: var(--text);
         }
 
-        /* --- SPLASH SCREEN --- */
-        #splash-screen {
+        /* SPLASH SCREEN */
+        #splash {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: white; z-index: 9999; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; transition: 0.8s ease-in-out;
+            background: #0f172a; z-index: 10000; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; transition: 0.8s ease;
         }
-        .splash-logo { width: 100px; animation: pulse 1.5s infinite ease-in-out; }
-        .splash-text { margin-top: 20px; font-weight: 800; font-size: 24px; color: var(--primary); letter-spacing: -1px; }
-        .splash-tag { position: absolute; bottom: 40px; font-size: 12px; color: #94a3b8; letter-spacing: 2px; }
-        @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
+        .splash-logo { width: 100px; animation: pulse 1.5s infinite; border-radius: 22px; }
+        @keyframes pulse { 0%, 100% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1); opacity: 1; } }
 
-        /* --- MAIN UI --- */
-        .app-content { opacity: 0; transform: translateY(20px); transition: 1s ease-out; padding: 20px; padding-bottom: 110px; }
-        .app-visible { opacity: 1; transform: translateY(0); }
+        /* HEADER & THEME TOGGLE */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; }
+        .header img { height: 45px; border-radius: 10px; }
+        .theme-btn { background: var(--card); border: 1px solid #e2e8f0; padding: 10px; border-radius: 12px; font-size: 18px; }
 
-        .header { text-align: center; margin-bottom: 30px; }
-        .header img { height: 60px; filter: drop-shadow(0 10px 15px rgba(37, 99, 235, 0.2)); }
-        
-        /* Modern Cards */
+        /* PREMIUM CARDS */
         .glass-card { 
-            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 28px;
-            padding: 24px; box-shadow: 0 10px 30px -5px rgba(0,0,0,0.05); margin-bottom: 20px;
+            background: var(--card); border-radius: 24px; padding: 20px; 
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1);
         }
+        .label { font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 8px; display: block; }
 
-        .label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 12px; display: block; }
-        
         textarea { 
-            width: 100%; height: 160px; border: none; font-size: 18px; line-height: 1.6; 
-            resize: none; outline: none; background: transparent; color: var(--text);
+            width: 100%; height: 140px; border: none; font-size: 18px; 
+            background: transparent; outline: none; resize: none; color: var(--text);
         }
 
-        .output-text { font-size: 22px; font-weight: 600; color: var(--primary); min-height: 100px; }
+        .output-box { font-size: 22px; font-weight: 700; color: var(--primary); min-height: 80px; }
 
-        /* Tool Grid */
-        .tool-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        /* BUTTONS */
+        .tool-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .chip { 
-            background: white; border-radius: 16px; padding: 14px; text-align: center;
-            font-size: 14px; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-            display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid #e2e8f0;
+            background: var(--card); border-radius: 15px; padding: 12px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; border: 1px solid #e2e8f0;
         }
 
         .lang-select { 
-            width: 100%; padding: 16px; border-radius: 18px; border: 1px solid #e2e8f0;
-            background: white; font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 20px;
+            width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #e2e8f0;
+            background: var(--card); color: var(--text); font-size: 16px; font-weight: 700; margin-bottom: 15px;
         }
 
-        /* Fixed Bottom Bar */
+        /* NAVIGATION BAR */
         .bottom-nav { 
-            position: fixed; bottom: 25px; left: 20px; right: 20px;
-            background: #0f172a; padding: 12px; border-radius: 24px;
-            display: flex; gap: 10px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); z-index: 100;
+            position: fixed; bottom: 25px; left: 15px; right: 15px;
+            background: var(--nav); padding: 10px; border-radius: 25px;
+            display: flex; gap: 8px; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
-        .btn { 
-            height: 56px; border-radius: 18px; border: none; color: white; 
-            display: flex; align-items: center; justify-content: center; font-weight: 700;
-            transition: 0.2s;
+        .nav-btn { 
+            height: 55px; border-radius: 18px; border: none; color: white; 
+            display: flex; align-items: center; justify-content: center;
         }
-        .btn-main { flex: 3; background: var(--primary); font-size: 16px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
-        .btn-icon { flex: 1; background: rgba(255,255,255,0.1); font-size: 22px; }
-        .btn:active { transform: scale(0.92); }
+        .btn-main { flex: 3; background: var(--primary); font-weight: 800; }
+        .btn-icon { flex: 1; background: rgba(255,255,255,0.1); font-size: 20px; }
+        .nav-btn:active { transform: scale(0.92); }
 
-        .copy-btn { float: right; background: #f1f5f9; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; }
+        .copy-btn { float: right; background: var(--primary); color: white; border: none; padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; }
     </style>
 </head>
 <body>
 
-    <div id="splash-screen">
-        <img src="logo.png" class="splash-logo" alt="Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3898/3898082.png'">
-        <div class="splash-text">GenLingo</div>
-        <div class="splash-tag">POWERED BY GEN-AI</div>
+    <div id="splash">
+        <img src="logo.png" class="splash-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3898/3898082.png'">
+        <h2 style="color:white; margin-top:15px; letter-spacing:-1px;">GenLingo AI</h2>
     </div>
 
-    <div id="app-body" class="app-content">
-        <div class="header">
-            <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
-            <h1>GenLingo</h1>
-        </div>
+    <div class="header">
+        <img src="logo.png" onerror="this.style.display='none'">
+        <button class="theme-btn" onclick="document.body.classList.toggle('dark')">🌓</button>
+    </div>
 
-        <div class="tool-row">
-            <label class="chip">📷 Scan Text <input type="file" id="imgFile" accept="image/*" hidden></label>
-            <label class="chip">📂 PDF File <input type="file" id="pdfFile" accept="application/pdf" hidden></label>
-        </div>
+    <div class="tool-row">
+        <label class="chip">📷 Scan <input type="file" id="imgFile" accept="image/*" hidden></label>
+        <label class="chip">📂 PDF <input type="file" id="pdfFile" accept="application/pdf" hidden></label>
+    </div>
 
-        <select id="userLang" class="lang-select">
-            <option value="hi">Hindi (हिन्दी)</option>
-            <option value="ml" selected>Malayalam (മലയാളം)</option>
-            <option value="ta">Tamil (தமிழ்)</option>
-            <option value="te">Telugu (తెలుగు)</option>
-            <option value="kn">Kannada (ಕನ್ನಡ)</option>
-        </select>
+    <select id="userLang" class="lang-select">
+        <option value="ml">Malayalam (മലയാളം)</option>
+        <option value="hi" selected>Hindi (हिन्दी)</option>
+        <option value="ta">Tamil (தமிழ்)</option>
+    </select>
 
-        <div class="glass-card">
-            <span class="label">Source (English)</span>
-            <textarea id="sourceInput" placeholder="Enter text or scan a document..."></textarea>
-        </div>
+    <div class="glass-card">
+        <span class="label">English Source</span>
+        <textarea id="sourceInput" placeholder="Enter text..."></textarea>
+    </div>
 
-        <div class="glass-card">
-            <button class="copy-btn" onclick="copyText()">📋 Copy</button>
-            <span class="label">Translation</span>
-            <div id="translatedContent" class="output-text">...</div>
-        </div>
+    <div class="glass-card">
+        <button class="copy-btn" onclick="copyText()">COPY</button>
+        <span class="label">Translation</span>
+        <div id="translatedContent" class="output-box">...</div>
     </div>
 
     <div class="bottom-nav">
-        <button class="btn btn-icon" onclick="location.reload()">🔄</button>
-        <button class="btn btn-main" onclick="startTranslation()">Translate Now</button>
-        <button class="btn btn-icon" onclick="speakText()">🔊</button>
-        <button class="btn btn-icon" onclick="downloadPDF()">📥</button>
+        <button class="nav-btn btn-icon" onclick="location.reload()">🔄</button>
+        <button class="nav-btn btn-main" onclick="startTranslation()">TRANSLATE NOW</button>
+        <button class="nav-btn btn-icon" onclick="speakText()">🔊</button>
+        <button class="nav-btn btn-icon" onclick="downloadPDF()">📥</button>
     </div>
 
     <script>
-        // Splash Screen Logic
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.opacity = '0';
-                document.getElementById('app-body').classList.add('app-visible');
-                setTimeout(() => { document.getElementById('splash-screen').style.display = 'none'; }, 800);
-            }, 2500);
-        });
+        window.onload = () => setTimeout(() => {
+            document.getElementById('splash').style.opacity = '0';
+            setTimeout(() => document.getElementById('splash').style.display = 'none', 800);
+        }, 2000);
 
         const source = document.getElementById('sourceInput');
         const target = document.getElementById('translatedContent');
@@ -149,13 +146,13 @@
                 const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${lang}`);
                 const data = await res.json();
                 target.innerText = data.responseData.translatedText;
-            } catch (e) { target.innerText = "Error connecting..."; }
+            } catch (e) { target.innerText = "Error!"; }
             target.style.opacity = "1";
         }
 
         function copyText() {
             navigator.clipboard.writeText(target.innerText);
-            alert("Translation Copied!");
+            alert("Copied!");
         }
 
         function speakText() {
@@ -169,11 +166,11 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             doc.text(doc.splitTextToSize(target.innerText, 180), 10, 20);
-            doc.save("GenLingo_Translation.pdf");
+            doc.save("GenLingo.pdf");
         }
 
         document.getElementById('imgFile').onchange = async (e) => {
-            source.value = "Scanning magic...";
+            source.value = "Scanning...";
             const { data: { text } } = await Tesseract.recognize(e.target.files[0], 'eng');
             source.value = text;
         };
