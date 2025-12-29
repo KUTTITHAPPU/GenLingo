@@ -3,108 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GenLingo Responsive</title>
+    <title>GenLingo Premium</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root { --blue: #0074D9; --navy: #001f3f; --green: #2ECC40; --red: #FF4136; --silver: #f4f7f6; }
-        * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--silver); margin: 0; padding: 10px; padding-bottom: 80px; } /* Space for bottom bar */
+        :root { --primary: #2563eb; --accent: #3b82f6; --bg: #fdfdfd; --text: #0f172a; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        .main-card { max-width: 800px; margin: 0 auto; background: white; padding: 15px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: var(--navy); font-size: 24px; margin: 10px 0; }
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            background: #f1f5f9; margin: 0; color: var(--text); overflow-x: hidden;
+        }
 
-        /* Top Controls: Photo, PDF, Language */
-        .top-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .btn-small { padding: 12px; border: none; border-radius: 10px; font-weight: bold; color: white; background: var(--navy); display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 14px; }
-        .lang-select { grid-column: span 2; padding: 12px; border-radius: 10px; border: 1px solid #ddd; font-size: 16px; font-weight: bold; width: 100%; background: #fff; }
+        /* --- SPLASH SCREEN --- */
+        #splash-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; z-index: 9999; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; transition: 0.8s ease-in-out;
+        }
+        .splash-logo { width: 100px; animation: pulse 1.5s infinite ease-in-out; }
+        .splash-text { margin-top: 20px; font-weight: 800; font-size: 24px; color: var(--primary); letter-spacing: -1px; }
+        .splash-tag { position: absolute; bottom: 40px; font-size: 12px; color: #94a3b8; letter-spacing: 2px; }
+        @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
 
-        /* Stacked Boxes */
-        .box-container { display: flex; flex-direction: column; gap: 15px; }
-        .label-text { font-weight: 800; color: var(--navy); font-size: 12px; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        /* --- MAIN UI --- */
+        .app-content { opacity: 0; transform: translateY(20px); transition: 1s ease-out; padding: 20px; padding-bottom: 110px; }
+        .app-visible { opacity: 1; transform: translateY(0); }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .header img { height: 60px; filter: drop-shadow(0 10px 15px rgba(37, 99, 235, 0.2)); }
         
-        textarea, .mirror-div { 
-            width: 100%; height: 220px; border-radius: 12px; border: 1px solid #ddd; 
-            padding: 15px; font-size: 16px; background: white; line-height: 1.6; resize: none; outline: none;
+        /* Modern Cards */
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 28px;
+            padding: 24px; box-shadow: 0 10px 30px -5px rgba(0,0,0,0.05); margin-bottom: 20px;
         }
-        .mirror-div { position: relative; overflow-y: auto; border: 2px solid #eef2f7; }
 
-        /* Floating Bottom Action Bar */
-        .bottom-bar { 
-            position: fixed; bottom: 0; left: 0; right: 0; 
-            background: white; padding: 12px 20px; 
-            display: flex; gap: 10px; box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
-            z-index: 100;
+        .label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 12px; display: block; }
+        
+        textarea { 
+            width: 100%; height: 160px; border: none; font-size: 18px; line-height: 1.6; 
+            resize: none; outline: none; background: transparent; color: var(--text);
         }
-        .btn-main { flex: 2; padding: 15px; border-radius: 12px; border: none; color: white; font-weight: bold; font-size: 16px; background: var(--blue); }
-        .btn-icon { flex: 0.5; padding: 15px; border-radius: 12px; border: none; color: white; font-weight: bold; background: var(--green); display: flex; align-items: center; justify-content: center; }
 
-        /* Spinner */
-        .loader { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-        .spinner { width: 30px; height: 30px; border: 3px solid #f3f3f3; border-top: 3px solid var(--blue); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .output-text { font-size: 22px; font-weight: 600; color: var(--primary); min-height: 100px; }
+
+        /* Tool Grid */
+        .tool-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .chip { 
+            background: white; border-radius: 16px; padding: 14px; text-align: center;
+            font-size: 14px; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid #e2e8f0;
+        }
+
+        .lang-select { 
+            width: 100%; padding: 16px; border-radius: 18px; border: 1px solid #e2e8f0;
+            background: white; font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 20px;
+        }
+
+        /* Fixed Bottom Bar */
+        .bottom-nav { 
+            position: fixed; bottom: 25px; left: 20px; right: 20px;
+            background: #0f172a; padding: 12px; border-radius: 24px;
+            display: flex; gap: 10px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); z-index: 100;
+        }
+        .btn { 
+            height: 56px; border-radius: 18px; border: none; color: white; 
+            display: flex; align-items: center; justify-content: center; font-weight: 700;
+            transition: 0.2s;
+        }
+        .btn-main { flex: 3; background: var(--primary); font-size: 16px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+        .btn-icon { flex: 1; background: rgba(255,255,255,0.1); font-size: 22px; }
+        .btn:active { transform: scale(0.92); }
+
+        .copy-btn { float: right; background: #f1f5f9; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; }
     </style>
 </head>
 <body>
 
-    <div class="main-card">
-        <h1>GenLingo</h1>
+    <div id="splash-screen">
+        <img src="logo.png" class="splash-logo" alt="Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3898/3898082.png'">
+        <div class="splash-text">GenLingo</div>
+        <div class="splash-tag">POWERED BY GEN-AI</div>
+    </div>
 
-        <div class="top-tools">
-            <label class="btn-small">📷 Photo <input type="file" id="imgFile" accept="image/*" hidden></label>
-            <label class="btn-small">📂 PDF <input type="file" id="pdfFile" accept="application/pdf" hidden></label>
-            <select id="userLang" class="lang-select">
-                <option value="hi">Hindi (हिन्दी)</option>
-                <option value="ml">Malayalam (മലയാളം)</option>
-                <option value="ta">Tamil (தமிழ்)</option>
-                <option value="te">Telugu (తెలుగు)</option>
-                <option value="kn">Kannada (ಕನ್ನಡ)</option>
-            </select>
+    <div id="app-body" class="app-content">
+        <div class="header">
+            <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
+            <h1>GenLingo</h1>
         </div>
 
-        <div class="box-container">
-            <div>
-                <div class="label-text">Source Text (English)</div>
-                <textarea id="sourceInput" placeholder="Type or scan text..."></textarea>
-            </div>
+        <div class="tool-row">
+            <label class="chip">📷 Scan Text <input type="file" id="imgFile" accept="image/*" hidden></label>
+            <label class="chip">📂 PDF File <input type="file" id="pdfFile" accept="application/pdf" hidden></label>
+        </div>
 
-            <div>
-                <div class="label-text">Translation</div>
-                <div class="mirror-div">
-                    <div id="loadingUI" class="loader"><div class="spinner"></div></div>
-                    <span id="translatedContent">...</span>
-                </div>
-            </div>
+        <select id="userLang" class="lang-select">
+            <option value="hi">Hindi (हिन्दी)</option>
+            <option value="ml" selected>Malayalam (മലയാളം)</option>
+            <option value="ta">Tamil (தமிழ்)</option>
+            <option value="te">Telugu (తెలుగు)</option>
+            <option value="kn">Kannada (ಕನ್ನಡ)</option>
+        </select>
+
+        <div class="glass-card">
+            <span class="label">Source (English)</span>
+            <textarea id="sourceInput" placeholder="Enter text or scan a document..."></textarea>
+        </div>
+
+        <div class="glass-card">
+            <button class="copy-btn" onclick="copyText()">📋 Copy</button>
+            <span class="label">Translation</span>
+            <div id="translatedContent" class="output-text">...</div>
         </div>
     </div>
 
-    <div class="bottom-bar">
-        <button class="btn-icon" style="background:var(--red)" onclick="location.reload()">🔄</button>
-        <button class="btn-main" onclick="startTranslation()">Translate Now</button>
-        <button class="btn-icon" onclick="speakText()">🔊</button>
-        <button class="btn-icon" style="background:var(--blue)" onclick="downloadPDF()">📥</button>
+    <div class="bottom-nav">
+        <button class="btn btn-icon" onclick="location.reload()">🔄</button>
+        <button class="btn btn-main" onclick="startTranslation()">Translate Now</button>
+        <button class="btn btn-icon" onclick="speakText()">🔊</button>
+        <button class="btn btn-icon" onclick="downloadPDF()">📥</button>
     </div>
 
     <script>
-        // Logic remains the same as your functional build
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+        // Splash Screen Logic
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.opacity = '0';
+                document.getElementById('app-body').classList.add('app-visible');
+                setTimeout(() => { document.getElementById('splash-screen').style.display = 'none'; }, 800);
+            }, 2500);
+        });
+
         const source = document.getElementById('sourceInput');
         const target = document.getElementById('translatedContent');
-        const loader = document.getElementById('loadingUI');
 
         async function startTranslation() {
             const text = source.value.trim();
             const lang = document.getElementById('userLang').value;
             if(!text) return;
-            loader.style.display = "block";
-            target.innerText = "";
+            target.style.opacity = "0.3";
             try {
                 const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${lang}`);
                 const data = await res.json();
                 target.innerText = data.responseData.translatedText;
-            } catch (e) { target.innerText = "Error!"; }
-            loader.style.display = "none";
+            } catch (e) { target.innerText = "Error connecting..."; }
+            target.style.opacity = "1";
+        }
+
+        function copyText() {
+            navigator.clipboard.writeText(target.innerText);
+            alert("Translation Copied!");
         }
 
         function speakText() {
@@ -118,29 +169,13 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             doc.text(doc.splitTextToSize(target.innerText, 180), 10, 20);
-            doc.save("GenLingo.pdf");
+            doc.save("GenLingo_Translation.pdf");
         }
 
         document.getElementById('imgFile').onchange = async (e) => {
-            source.value = "Scanning...";
+            source.value = "Scanning magic...";
             const { data: { text } } = await Tesseract.recognize(e.target.files[0], 'eng');
             source.value = text;
-        };
-
-        document.getElementById('pdfFile').onchange = async (e) => {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = async function() {
-                const pdf = await pdfjsLib.getDocument({data: new Uint8Array(this.result)}).promise;
-                let fullText = "";
-                for(let i=1; i<=pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const content = await page.getTextContent();
-                    fullText += content.items.map(s => s.str).join(" ") + " ";
-                }
-                source.value = fullText;
-            };
-            reader.readAsArrayBuffer(file);
         };
     </script>
 </body>
