@@ -15,18 +15,46 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; transition: 0.3s; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; padding-bottom: 150px; color: var(--text); overflow-x: hidden; }
 
-        /* --- CUTE LAMP SPLASH --- */
-        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .lamp-wrapper { position: relative; width: 100px; height: 150px; display: flex; flex-direction: column; align-items: center; }
-        .lamp-top { width: 70px; height: 50px; background: var(--lamp); border-radius: 15px 15px 5px 5px; position: relative; z-index: 2; }
-        .face { position: absolute; top: 18px; left: 18px; display: flex; gap: 14px; }
-        .eye { width: 7px; height: 7px; background: #0f172a; border-radius: 50%; animation: blink 3s infinite; }
-        @keyframes blink { 0%, 90%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
-        .light-beam { position: absolute; top: 50px; width: 140px; height: 100px; background: linear-gradient(to bottom, rgba(250, 204, 21, 0.4), transparent); clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%); opacity: 0; transition: 0.5s; }
-        .lamp-on .light-beam { opacity: 1; }
-        .lamp-base { width: 6px; height: 60px; background: #64748b; }
-        .lamp-bottom { width: 50px; height: 6px; background: #475569; border-radius: 3px; }
+       /* --- REFINED CUTE LAMP --- */
+#splash { 
+    position: fixed; inset: 0; background: #0f172a; z-index: 10000; 
+    display: flex; flex-direction: column; align-items: center; justify-content: center; 
+}
 
+.lamp-wrapper { position: relative; width: 140px; height: 160px; display: flex; flex-direction: column; align-items: center; }
+
+/* The Head - Made more rounded and organic */
+.lamp-head { 
+    width: 85px; height: 55px; background: #4ade80; 
+    border-radius: 40px 40px 10px 10px; position: relative; z-index: 5; 
+    box-shadow: inset -5px -5px 0 rgba(0,0,0,0.1);
+}
+
+/* Blinking Eyes */
+.face { position: absolute; top: 20px; left: 22px; display: flex; gap: 15px; }
+.eye { width: 8px; height: 8px; background: #0f172a; border-radius: 50%; animation: blink 4s infinite; }
+@keyframes blink { 0%, 90%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
+
+/* The Neck - Curved look */
+.lamp-neck { 
+    width: 12px; height: 60px; background: #94a3b8; 
+    margin-top: -5px; border-radius: 0 0 10px 10px;
+}
+
+/* The Base - Rounded button style */
+.lamp-base { 
+    width: 60px; height: 12px; background: #475569; 
+    border-radius: 20px; margin-top: -2px; 
+}
+
+/* Softer Light Beam */
+.light-glow { 
+    position: absolute; top: 50px; width: 180px; height: 130px; 
+    background: radial-gradient(ellipse at top, rgba(250, 204, 21, 0.4), transparent 70%);
+    clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+    opacity: 0; transition: 0.8s ease; z-index: 1;
+}
+.lamp-on .light-glow { opacity: 1; transform: translateY(5px); }
         /* --- MAIN UI --- */
         .glass-card { background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); margin-bottom: 15px; position: relative; }
         .label { font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 8px; display: block; }
@@ -42,16 +70,20 @@
     </style>
 </head>
 <body id="mainBody">
-
-    <div id="splash">
-        <div class="lamp-wrapper" id="lamp">
-            <div class="lamp-top"><div class="face"><div class="eye"></div><div class="eye"></div></div></div>
-            <div class="light-beam"></div>
-            <div class="lamp-base"></div>
-            <div class="lamp-bottom"></div>
+<div id="splash">
+    <div class="lamp-wrapper" id="lampUI">
+        <div class="lamp-head">
+            <div class="face">
+                <div class="eye"></div>
+                <div class="eye"></div>
+            </div>
         </div>
-        <h3 style="color:white; margin-top:20px;">GenLingo Pro</h3>
+        <div class="light-glow"></div>
+        <div class="lamp-neck"></div>
+        <div class="lamp-base"></div>
     </div>
+    <h2 style="color:white; font-weight:300; letter-spacing: 2px; margin-top: 30px;">GENLINGO <span style="color:#4ade80">PRO</span></h2>
+</div>
 
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
         <h2>GenLingo</h2>
@@ -124,3 +156,4 @@
     </script>
 </body>
 </html>
+
