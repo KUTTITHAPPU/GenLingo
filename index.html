@@ -6,154 +6,157 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>GenLingo Pro</title>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
 
     <style>
-        :root { --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --nav: #0f172a; --lamp: #4ade80; }
+        :root { --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --nav: #0f172a; --lamp-on: #4ade80; --lamp-off: #334155; }
         body.dark { --bg: #020617; --card: #1e293b; --text: #f1f5f9; --nav: #000000; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; transition: 0.3s; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; padding-bottom: 150px; color: var(--text); overflow-x: hidden; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; padding-bottom: 120px; color: var(--text); overflow-x: hidden; }
 
-       /* --- REFINED CUTE LAMP --- */
-#splash { 
-    position: fixed; inset: 0; background: #0f172a; z-index: 10000; 
-    display: flex; flex-direction: column; align-items: center; justify-content: center; 
-}
-
-.lamp-wrapper { position: relative; width: 140px; height: 160px; display: flex; flex-direction: column; align-items: center; }
-
-/* The Head - Made more rounded and organic */
-.lamp-head { 
-    width: 85px; height: 55px; background: #4ade80; 
-    border-radius: 40px 40px 10px 10px; position: relative; z-index: 5; 
-    box-shadow: inset -5px -5px 0 rgba(0,0,0,0.1);
-}
-
-/* Blinking Eyes */
-.face { position: absolute; top: 20px; left: 22px; display: flex; gap: 15px; }
-.eye { width: 8px; height: 8px; background: #0f172a; border-radius: 50%; animation: blink 4s infinite; }
-@keyframes blink { 0%, 90%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
-
-/* The Neck - Curved look */
-.lamp-neck { 
-    width: 12px; height: 60px; background: #94a3b8; 
-    margin-top: -5px; border-radius: 0 0 10px 10px;
-}
-
-/* The Base - Rounded button style */
-.lamp-base { 
-    width: 60px; height: 12px; background: #475569; 
-    border-radius: 20px; margin-top: -2px; 
-}
-
-/* Softer Light Beam */
-.light-glow { 
-    position: absolute; top: 50px; width: 180px; height: 130px; 
-    background: radial-gradient(ellipse at top, rgba(250, 204, 21, 0.4), transparent 70%);
-    clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
-    opacity: 0; transition: 0.8s ease; z-index: 1;
-}
-.lamp-on .light-glow { opacity: 1; transform: translateY(5px); }
-        /* --- MAIN UI --- */
-        .glass-card { background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); margin-bottom: 15px; position: relative; }
-        .label { font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 8px; display: block; }
-        textarea { width: 100%; height: 100px; border: none; font-size: 18px; background: transparent; outline: none; color: var(--text); }
-        .output-box { font-size: 20px; font-weight: 600; color: var(--primary); min-height: 40px; word-wrap: break-word; }
+        /* --- MANUAL LAMP SPLASH --- */
+        #splash { position: fixed; inset: 0; background: #070a13; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 1s cubic-bezier(0.4, 0, 0.2, 1); }
+        .lamp-wrapper { position: relative; width: 140px; height: 220px; display: flex; flex-direction: column; align-items: center; }
         
-        .progress-container { width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px; margin: 10px 0; display: none; overflow: hidden; }
+        .lamp-head { width: 85px; height: 55px; background: var(--lamp-off); border-radius: 40px 40px 10px 10px; position: relative; z-index: 5; transition: 0.3s; }
+        .face { position: absolute; top: 20px; left: 22px; display: flex; gap: 15px; }
+        .eye { width: 8px; height: 8px; background: #070a13; border-radius: 50%; animation: blink 4s infinite; }
+        @keyframes blink { 0%, 90%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
+
+        .pull-string { position: absolute; top: 55px; right: 35px; width: 2px; height: 70px; background: #94a3b8; z-index: 4; cursor: pointer; transition: 0.2s; }
+        .string-handle { position: absolute; bottom: -10px; left: -4px; width: 10px; height: 10px; background: #fbbf24; border-radius: 50%; box-shadow: 0 0 10px rgba(251, 191, 36, 0.4); }
+        .pull-string:active { height: 85px; }
+
+        .lamp-neck { width: 12px; height: 50px; background: #475569; margin-top: -5px; }
+        .lamp-base { width: 60px; height: 10px; background: #1e293b; border-radius: 20px; }
+        
+        .light-glow { position: absolute; top: 50px; width: 200px; height: 150px; background: radial-gradient(ellipse at top, rgba(74, 222, 128, 0.3), transparent 70%); opacity: 0; transition: 0.5s; pointer-events: none; }
+        
+        .lamp-on .lamp-head { background: var(--lamp-on); box-shadow: 0 0 40px rgba(74, 222, 128, 0.4); }
+        .lamp-on .light-glow { opacity: 1; }
+        
+        .hint { color: #64748b; font-size: 12px; margin-top: 40px; font-weight: 800; letter-spacing: 2px; animation: pulse 2s infinite; }
+        @keyframes pulse { 50% { opacity: 0.3; } }
+
+        /* --- MAIN APP UI --- */
+        .glass-card { background: var(--card); border-radius: 24px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; position: relative; }
+        .label { font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 10px; display: block; }
+        textarea { width: 100%; height: 110px; border: none; font-size: 18px; background: transparent; outline: none; resize: none; color: var(--text); }
+        
+        .progress-container { width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px; margin-bottom: 10px; display: none; overflow: hidden; }
         .progress-bar { height: 100%; width: 0%; background: var(--primary); transition: 0.3s; }
 
-        .bottom-nav { position: fixed; bottom: 20px; left: 15px; right: 15px; background: var(--nav); padding: 10px; border-radius: 20px; display: flex; gap: 10px; z-index: 1000; }
-        .nav-btn { flex: 1; height: 50px; border-radius: 15px; border: none; color: white; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        .btn-main { flex: 2.5; background: var(--primary); }
+        .lang-select { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #e2e8f0; background: var(--card); color: var(--text); font-weight: 700; margin-bottom: 15px; appearance: none; }
+        
+        .bottom-nav { position: fixed; bottom: 25px; left: 15px; right: 15px; background: var(--nav); padding: 10px; border-radius: 25px; display: flex; gap: 8px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); z-index: 1000; }
+        .nav-btn { height: 55px; border-radius: 18px; border: none; color: white; flex: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .btn-main { flex: 2.5; background: var(--primary); font-weight: 800; font-size: 16px; }
     </style>
 </head>
 <body id="mainBody">
-<div id="splash">
-    <div class="lamp-wrapper" id="lampUI">
-        <div class="lamp-head">
-            <div class="face">
-                <div class="eye"></div>
-                <div class="eye"></div>
+
+    <div id="splash">
+        <div class="lamp-wrapper" id="lampBox">
+            <div class="lamp-head"><div class="face"><div class="eye"></div><div class="eye"></div></div></div>
+            <div class="pull-string" onclick="turnOn()">
+                <div class="string-handle"></div>
             </div>
+            <div class="light-glow"></div>
+            <div class="lamp-neck"></div>
+            <div class="lamp-base"></div>
         </div>
-        <div class="light-glow"></div>
-        <div class="lamp-neck"></div>
-        <div class="lamp-base"></div>
-    </div>
-    <h2 style="color:white; font-weight:300; letter-spacing: 2px; margin-top: 30px;">GENLINGO <span style="color:#4ade80">PRO</span></h2>
-</div>
-
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h2>GenLingo</h2>
-        <button onclick="document.getElementById('mainBody').classList.toggle('dark')" style="border:none; background:none; font-size:24px;">🌓</button>
+        <div class="hint" id="statusText">PULL STRING TO ENTER</div>
     </div>
 
-    <select id="userLang" style="width:100%; padding:12px; border-radius:12px; margin-bottom:15px; font-weight:bold;">
-        <option value="hi">Hindi</option>
-        <option value="ml">Malayalam</option>
-        <option value="ta">Tamil</option>
+    <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 style="margin:0;">GenLingo <span style="color:var(--primary)">PRO</span></h2>
+        <button onclick="document.getElementById('mainBody').classList.toggle('dark')" style="background:none; border:none; font-size:22px; cursor:pointer;">🌓</button>
+    </header>
+
+    <select id="userLang" class="lang-select">
+        <option value="hi" selected>Hindi (हिन्दी)</option>
+        <option value="ml">Malayalam (മലയാളം)</option>
+        <option value="ta">Tamil (தமிழ்)</option>
+        <option value="te">Telugu (తెలుగు)</option>
     </select>
 
     <div class="glass-card">
-        <span class="label">English</span>
-        <textarea id="sourceInput" placeholder="Paste here..."></textarea>
+        <span class="label">English Source</span>
+        <textarea id="sourceText" placeholder="Type or paste long text here..."></textarea>
     </div>
 
     <div id="pContainer" class="progress-container"><div id="pBar" class="progress-bar"></div></div>
 
-    <div class="glass-card" id="captureArea">
+    <div class="glass-card" id="outputArea">
         <span class="label">Translation</span>
-        <div id="targetOutput" class="output-box">...</div>
+        <div id="translatedText" style="font-size:20px; font-weight:600; color:var(--primary); min-height:50px;">...</div>
     </div>
 
     <div class="bottom-nav">
-        <button class="nav-btn" onclick="source.value=''">🗑️</button>
-        <button class="nav-btn btn-main" onclick="translateNow()">TRANSLATE</button>
-        <button class="nav-btn" onclick="download()">📥</button>
+        <button class="nav-btn" onclick="document.getElementById('sourceText').value=''">🗑️</button>
+        <button class="nav-btn btn-main" onclick="processTranslation()">TRANSLATE</button>
+        <button class="nav-btn" onclick="generatePDF()">📥</button>
     </div>
 
     <script>
-        const source = document.getElementById('sourceInput');
-        const target = document.getElementById('targetOutput');
+        const audioClick = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
 
-        window.onload = () => {
-            setTimeout(() => document.getElementById('lamp').classList.add('lamp-on'), 300);
-            setTimeout(() => document.getElementById('splash').style.display = 'none', 2000);
-        };
+        function turnOn() {
+            audioClick.play().catch(()=>{});
+            if (navigator.vibrate) navigator.vibrate(50);
+            
+            document.getElementById('lampBox').classList.add('lamp-on');
+            document.getElementById('statusText').innerText = "WELCOME";
+            
+            setTimeout(() => {
+                document.getElementById('splash').style.transform = "translateY(-100%)";
+            }, 800);
+        }
 
-        async function translateNow() {
-            const text = source.value.trim();
+        async function processTranslation() {
+            const text = document.getElementById('sourceText').value.trim();
+            const lang = document.getElementById('userLang').value;
+            const output = document.getElementById('translatedText');
+            const pBar = document.getElementById('pBar');
+            const pContainer = document.getElementById('pContainer');
+
             if(!text) return;
-            target.innerText = "Working...";
-            document.getElementById('pContainer').style.display = 'block';
-            
+            output.innerText = "Processing...";
+            pContainer.style.display = 'block';
+            pBar.style.width = '0%';
+
+            const chunks = text.match(/[\s\S]{1,450}/g) || [];
+            let fullResult = "";
+
             try {
-                const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${document.getElementById('userLang').value}`);
-                const data = await res.json();
-                target.innerText = data.responseData.translatedText;
-            } catch(e) { target.innerText = "Connect to internet"; }
-            
-            document.getElementById('pBar').style.width = '100%';
-            setTimeout(() => document.getElementById('pContainer').style.display = 'none', 500);
+                for (let i = 0; i < chunks.length; i++) {
+                    const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunks[i])}&langpair=en|${lang}`);
+                    const data = await res.json();
+                    fullResult += data.responseData.translatedText + " ";
+                    pBar.style.width = ((i + 1) / chunks.length * 100) + "%";
+                }
+                output.innerText = fullResult.trim();
+            } catch(e) {
+                output.innerText = "Check your connection.";
+            } finally {
+                setTimeout(() => pContainer.style.display = 'none', 1000);
+            }
         }
 
-        async function download() {
-            try {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                
-                // IMPORTANT: html2canvas creates a picture so Indian fonts work!
-                const canvas = await html2canvas(document.getElementById('captureArea'));
-                const imgData = canvas.toDataURL('image/png');
-                
-                doc.text("GenLingo Translation", 10, 10);
-                doc.addImage(imgData, 'PNG', 10, 20, 180, 0);
-                doc.save("GenLingo.pdf");
-            } catch(e) { alert("Download error: " + e); }
+        async function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const canvas = await html2canvas(document.getElementById('outputArea'), { scale: 2 });
+            const doc = new jsPDF();
+            doc.text("GenLingo Pro Translation", 10, 15);
+            doc.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 25, 185, 0);
+            doc.save("GenLingo_Export.pdf");
         }
+
+        // Offline Notification
+        window.addEventListener('offline', () => {
+            document.getElementById('translatedText').innerText = "System Offline.";
+        });
     </script>
 </body>
 </html>
-
