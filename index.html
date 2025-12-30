@@ -4,55 +4,123 @@
     <meta charset="UTF-8">
     <link rel="manifest" href="manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>GenLingo Pro</title>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
         :root { --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --nav: #0f172a; --lamp: #4ade80; }
         body.dark { --bg: #020617; --card: #1e293b; --text: #f1f5f9; --nav: #000000; }
-
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; transition: 0.3s; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; padding-bottom: 150px; color: var(--text); }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; padding-bottom: 150px; color: var(--text); overflow-x: hidden; }
 
-        /* --- CUTE LAMP SPLASH SCREEN --- */
-        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.8s; }
-        
-        .lamp-wrapper { position: relative; width: 120px; height: 180px; display: flex; flex-direction: column; align-items: center; }
-        .lamp-top { width: 80px; height: 60px; background: var(--lamp); border-radius: 20px 20px 5px 5px; position: relative; z-index: 2; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .lamp-base { width: 8px; height: 70px; background: #64748b; }
-        .lamp-bottom { width: 60px; height: 8px; background: #475569; border-radius: 4px; }
-        
-        /* Blinking Eyes */
-        .face { position: absolute; top: 22px; left: 22px; display: flex; gap: 18px; }
-        .eye { width: 8px; height: 8px; background: #0f172a; border-radius: 50%; animation: blink 4s infinite; }
+        /* --- CUTE LAMP SPLASH --- */
+        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .lamp-wrapper { position: relative; width: 100px; height: 150px; display: flex; flex-direction: column; align-items: center; }
+        .lamp-top { width: 70px; height: 50px; background: var(--lamp); border-radius: 15px 15px 5px 5px; position: relative; z-index: 2; }
+        .face { position: absolute; top: 18px; left: 18px; display: flex; gap: 14px; }
+        .eye { width: 7px; height: 7px; background: #0f172a; border-radius: 50%; animation: blink 3s infinite; }
         @keyframes blink { 0%, 90%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
-        
-        /* Light Beam */
-        .light-beam { position: absolute; top: 60px; width: 160px; height: 120px; background: linear-gradient(to bottom, rgba(250, 204, 21, 0.4), transparent); clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%); opacity: 0; transition: 0.5s; transform: translateY(-5px); }
-        .lamp-on .light-beam { opacity: 1; transform: translateY(0); }
+        .light-beam { position: absolute; top: 50px; width: 140px; height: 100px; background: linear-gradient(to bottom, rgba(250, 204, 21, 0.4), transparent); clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%); opacity: 0; transition: 0.5s; }
+        .lamp-on .light-beam { opacity: 1; }
+        .lamp-base { width: 6px; height: 60px; background: #64748b; }
+        .lamp-bottom { width: 50px; height: 6px; background: #475569; border-radius: 3px; }
 
         /* --- MAIN UI --- */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .theme-btn { background: var(--card); border: 1px solid #e2e8f0; padding: 8px 12px; border-radius: 12px; font-size: 18px; cursor: pointer; }
-        .glass-card { background: var(--card); border-radius: 24px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; position: relative; }
-        .label { font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 8px; display: block; }
+        .glass-card { background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); margin-bottom: 15px; position: relative; }
+        .label { font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 8px; display: block; }
+        textarea { width: 100%; height: 100px; border: none; font-size: 18px; background: transparent; outline: none; color: var(--text); }
+        .output-box { font-size: 20px; font-weight: 600; color: var(--primary); min-height: 40px; word-wrap: break-word; }
         
-        textarea { width: 100%; height: 100px; border: none; font-size: 18px; background: transparent; outline: none; resize: none; color: var(--text); }
-        .output-box { font-size: 20px; font-weight: 600; color: var(--primary); min-height: 50px; }
+        .progress-container { width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px; margin: 10px 0; display: none; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: var(--primary); transition: 0.3s; }
 
-        .progress-container { width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px; margin-bottom: 15px; display: none; overflow: hidden; }
-        .progress-bar { height: 100%; width: 0%; background: var(--primary); transition: width 0.3s; }
+        .bottom-nav { position: fixed; bottom: 20px; left: 15px; right: 15px; background: var(--nav); padding: 10px; border-radius: 20px; display: flex; gap: 10px; z-index: 1000; }
+        .nav-btn { flex: 1; height: 50px; border-radius: 15px; border: none; color: white; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .btn-main { flex: 2.5; background: var(--primary); }
+    </style>
+</head>
+<body id="mainBody">
 
-        .lang-select { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #e2e8f0; background: var(--card); color: var(--text); font-size: 16px; font-weight: 700; margin-bottom: 15px; appearance: none; }
-        .input-actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; }
-        .action-btn { background: #e2e8f0; border: none; border-radius: 10px; padding: 5px 10px; font-size: 11px; font-weight: 700; color: #475569; cursor: pointer; }
+    <div id="splash">
+        <div class="lamp-wrapper" id="lamp">
+            <div class="lamp-top"><div class="face"><div class="eye"></div><div class="eye"></div></div></div>
+            <div class="light-beam"></div>
+            <div class="lamp-base"></div>
+            <div class="lamp-bottom"></div>
+        </div>
+        <h3 style="color:white; margin-top:20px;">GenLingo Pro</h3>
+    </div>
 
-        .history-item { background: var(--card); padding: 12px; border-radius: 15px; margin-bottom: 10px; font-size: 14px; border-left: 4px solid var(--primary); cursor: pointer; }
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2>GenLingo</h2>
+        <button onclick="document.getElementById('mainBody').classList.toggle('dark')" style="border:none; background:none; font-size:24px;">🌓</button>
+    </div>
 
-        .bottom-nav { position: fixed; bottom: 25px; left: 15px; right: 15px; background: var(--nav); padding: 10px; border-radius: 25px; display: flex; gap: 8px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); z-index: 1000; }
-        .nav-btn { height: 5
+    <select id="userLang" style="width:100%; padding:12px; border-radius:12px; margin-bottom:15px; font-weight:bold;">
+        <option value="hi">Hindi</option>
+        <option value="ml">Malayalam</option>
+        <option value="ta">Tamil</option>
+    </select>
+
+    <div class="glass-card">
+        <span class="label">English</span>
+        <textarea id="sourceInput" placeholder="Paste here..."></textarea>
+    </div>
+
+    <div id="pContainer" class="progress-container"><div id="pBar" class="progress-bar"></div></div>
+
+    <div class="glass-card" id="captureArea">
+        <span class="label">Translation</span>
+        <div id="targetOutput" class="output-box">...</div>
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-btn" onclick="source.value=''">🗑️</button>
+        <button class="nav-btn btn-main" onclick="translateNow()">TRANSLATE</button>
+        <button class="nav-btn" onclick="download()">📥</button>
+    </div>
+
+    <script>
+        const source = document.getElementById('sourceInput');
+        const target = document.getElementById('targetOutput');
+
+        window.onload = () => {
+            setTimeout(() => document.getElementById('lamp').classList.add('lamp-on'), 300);
+            setTimeout(() => document.getElementById('splash').style.display = 'none', 2000);
+        };
+
+        async function translateNow() {
+            const text = source.value.trim();
+            if(!text) return;
+            target.innerText = "Working...";
+            document.getElementById('pContainer').style.display = 'block';
+            
+            try {
+                const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${document.getElementById('userLang').value}`);
+                const data = await res.json();
+                target.innerText = data.responseData.translatedText;
+            } catch(e) { target.innerText = "Connect to internet"; }
+            
+            document.getElementById('pBar').style.width = '100%';
+            setTimeout(() => document.getElementById('pContainer').style.display = 'none', 500);
+        }
+
+        async function download() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // IMPORTANT: html2canvas creates a picture so Indian fonts work!
+                const canvas = await html2canvas(document.getElementById('captureArea'));
+                const imgData = canvas.toDataURL('image/png');
+                
+                doc.text("GenLingo Translation", 10, 10);
+                doc.addImage(imgData, 'PNG', 10, 20, 180, 0);
+                doc.save("GenLingo.pdf");
+            } catch(e) { alert("Download error: " + e); }
+        }
+    </script>
+</body>
+</html>
