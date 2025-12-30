@@ -1,0 +1,12 @@
+const CACHE_NAME = 'genlingo-v1';
+const assets = ['./', './index.html', './manifest.json'];
+
+// Install & Cache files
+self.addEventListener('install', e => {
+    e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(assets)));
+});
+
+// Serve from cache if offline
+self.addEventListener('fetch', e => {
+    e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
+});
