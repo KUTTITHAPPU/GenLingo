@@ -5,15 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GenLingo Pro</title>
     
+    <script src="https://code.responsivevoice.org/responsivevoice.js?key=YOUR_FREE_KEY_OR_EMPTY"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
         :root { --primary: #2563eb; --bg: #0d1117; --card: #161b22; --text: #f0f6fc; --accent: #4ade80; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: sans-serif; }
-        body { background: var(--bg); margin: 0; padding: 20px; color: var(--text); overflow-x: hidden; padding-bottom: 110px; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { background: var(--bg); margin: 0; padding: 20px; color: var(--text); overflow-x: hidden; padding-bottom: 120px; }
 
-        /* --- ROTATING CIRCLE SPLASH --- */
+        /* --- ROTATING SEAL SPLASH --- */
         #splash { position: fixed; inset: 0; background: #070a13; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.8s ease; }
         .seal-container { position: relative; width: 160px; height: 160px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .seal-outer { position: absolute; width: 130px; height: 130px; border: 4px dashed var(--primary); border-radius: 50%; transition: 1s ease; }
@@ -21,171 +22,150 @@
         .active .seal-outer { transform: rotate(360deg); border-style: solid; border-color: var(--accent); }
         .active .seal-inner { transform: rotate(-720deg) scale(1.1); background: var(--accent); }
 
-        /* --- APP UI --- */
-        .glass-card { background: var(--card); border-radius: 20px; padding: 18px; margin-bottom: 15px; position: relative; border: 1px solid #30363d; }
-        .label { font-size: 10px; font-weight: 800; color: #8b949e; text-transform: uppercase; margin-bottom: 10px; display: block; }
-        textarea { width: 100%; height: 110px; border: none; font-size: 18px; background: transparent; outline: none; resize: none; color: var(--text); }
+        /* --- INTERFACE --- */
+        .glass-card { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 15px; position: relative; border: 1px solid #30363d; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .label { font-size: 11px; font-weight: 800; color: #8b949e; text-transform: uppercase; margin-bottom: 12px; display: block; letter-spacing: 1px; }
+        textarea { width: 100%; height: 120px; border: none; font-size: 18px; background: transparent; outline: none; resize: none; color: var(--text); line-height: 1.5; }
         
         .card-actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; }
-        .mini-btn { background: #30363d; border: none; border-radius: 8px; padding: 5px 10px; color: #c9d1d9; font-size: 10px; font-weight: bold; cursor: pointer; }
+        .mini-btn { background: #30363d; border: none; border-radius: 8px; padding: 6px 12px; color: #c9d1d9; font-size: 10px; font-weight: bold; cursor: pointer; }
 
-        .lang-select { width:100%; padding:14px; border-radius:12px; background:var(--card); border:1px solid #30363d; color:var(--text); font-weight:bold; margin-bottom:15px; appearance: none; }
+        .lang-select { width:100%; padding:16px; border-radius: 15px; background:var(--card); border: 1px solid #30363d; color:var(--text); font-weight:bold; margin-bottom:15px; font-size: 16px; }
 
-        .bottom-nav { position: fixed; bottom: 20px; left: 15px; right: 15px; background: #161b22; padding: 8px; border-radius: 20px; display: flex; gap: 6px; border: 1px solid #30363d; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .nav-btn { flex: 1; height: 50px; border-radius: 15px; border: none; color: white; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
-        .btn-main { flex: 2; background: var(--primary); font-weight: bold; font-size: 14px; }
-        .btn-install { background: #30363d; font-size: 12px; font-weight: bold; color: var(--accent); border: 1px solid var(--accent); }
+        .bottom-nav { position: fixed; bottom: 25px; left: 15px; right: 15px; background: #161b22; padding: 10px; border-radius: 25px; display: flex; gap: 8px; border: 1px solid #30363d; z-index: 1000; }
+        .nav-btn { flex: 1; height: 55px; border-radius: 18px; border: none; color: white; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
+        .btn-main { flex: 2.5; background: var(--primary); font-weight: bold; font-size: 16px; letter-spacing: 1px; }
         
-        .speaking { background: #be123c !important; animation: pulse-speak 1s infinite; }
-        @keyframes pulse-speak { 50% { opacity: 0.7; } }
+        .is-speaking { background: #e11d48 !important; box-shadow: 0 0 15px rgba(225, 29, 72, 0.4); }
     </style>
 </head>
 <body>
 
     <div id="splash">
-        <div class="seal-container" onclick="openApp(this)">
+        <div class="seal-container" onclick="unlockApp(this)">
             <div class="seal-outer"></div>
             <div class="seal-inner">G</div>
         </div>
-        <div style="margin-top:20px; color:#8b949e; letter-spacing:2px; font-size:11px; font-weight:bold;">CLICK SEAL TO START</div>
+        <div style="margin-top:25px; color:#8b949e; letter-spacing:3px; font-size:11px; font-weight:800;">AUTHENTICATING...</div>
     </div>
 
-    <header style="margin-bottom:15px; display: flex; justify-content: space-between; align-items: center;">
-        <h2 style="margin:0; font-size: 20px;">GenLingo <span style="color:var(--primary)">PRO</span></h2>
+    <header style="padding: 10px 0 20px 0;">
+        <h2 style="margin:0; font-size: 24px; letter-spacing: -1px;">GenLingo <span style="color:var(--primary)">PRO</span></h2>
     </header>
 
     <select id="userLang" class="lang-select">
-        <option value="hi">Hindi (हिन्दी)</option>
-        <option value="ml">Malayalam (മലയാളം)</option>
-        <option value="ta">Tamil (தமிழ்)</option>
-        <option value="te">Telugu (తెలుగు)</option>
-        <option value="kn">Kannada (ಕನ್ನಡ)</option>
-        <option value="bn">Bengali (বাংলা)</option>
+        <option value="Hindi Female">Hindi (हिन्दी)</option>
+        <option value="Malayalam Female">Malayalam (മലയാളം)</option>
+        <option value="Tamil Female">Tamil (தமிழ்)</option>
+        <option value="Telugu Female">Telugu (తెలుగు)</option>
+        <option value="Bengali Female">Bengali (বাংলা)</option>
     </select>
 
     <div class="glass-card">
         <div class="card-actions">
-            <button class="mini-btn" onclick="doPaste()">PASTE</button>
-            <button class="mini-btn" onclick="doClear()">CLEAR</button>
+            <button class="mini-btn" onclick="pasteText()">PASTE</button>
+            <button class="mini-btn" onclick="clearAll()">CLEAR</button>
         </div>
-        <span class="label">English Source</span>
-        <textarea id="srcText" placeholder="Type or paste text here..."></textarea>
+        <span class="label">English Input</span>
+        <textarea id="srcInput" placeholder="Start typing..."></textarea>
     </div>
 
-    <div class="glass-card" id="outCard">
+    <div class="glass-card" id="outputCard">
         <div class="card-actions">
-            <button class="mini-btn" id="voiceBtn" onclick="doVoice()">SPEAK 🔊</button>
+            <button class="mini-btn" id="voiceBtn" onclick="speakTranslation()">LISTEN 🔊</button>
         </div>
-        <span class="label">Translation</span>
-        <div id="outText" style="font-size:20px; min-height:50px; color:var(--primary); font-weight:600; line-height:1.4;">...</div>
+        <span class="label">Fluent Translation</span>
+        <div id="targetOutput" style="font-size:21px; min-height:60px; color:var(--primary); font-weight:600; line-height:1.6;">...</div>
     </div>
 
     <div class="bottom-nav">
         <button class="nav-btn" onclick="location.reload()">🔄</button>
-        <button class="nav-btn btn-install" onclick="installApp()">INSTALL</button>
-        <button class="nav-btn btn-main" onclick="doTranslate()">TRANSLATE</button>
-        <button class="nav-btn" onclick="doPDF()">📥</button>
+        <button class="nav-btn btn-main" onclick="translateNow()">TRANSLATE</button>
+        <button class="nav-btn" onclick="savePDF()">📥</button>
     </div>
 
     <script>
-        let deferredPrompt;
-
-        // Warm up voices for ML and TA
-        window.onload = () => { 
-            window.speechSynthesis.getVoices(); 
-            // PWA Install Logic
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-            });
-        };
-
-        function openApp(el) {
+        // 1. App Entry Logic
+        function unlockApp(el) {
             el.classList.add('active');
-            if(navigator.vibrate) navigator.vibrate(50);
+            if(navigator.vibrate) navigator.vibrate([30, 30, 30]);
             setTimeout(() => {
                 const s = document.getElementById('splash');
                 s.style.opacity = '0';
-                s.style.transform = 'scale(1.2)';
+                s.style.transform = 'scale(1.1)';
                 setTimeout(() => s.style.display = 'none', 800);
-            }, 1000);
+            }, 1200);
         }
 
-        async function doPaste() {
+        // 2. Translation Logic (Accuracy Optimized)
+        async function translateNow() {
+            const text = document.getElementById('srcInput').value.trim();
+            const fullLang = document.getElementById('userLang').value;
+            const langCode = fullLang.split(' ')[0].toLowerCase().substring(0, 2); // gets 'hi', 'ml', etc.
+            const output = document.getElementById('targetOutput');
+
+            if(!text) return;
+            output.innerText = "Processing accurately...";
+
             try {
-                const t = await navigator.clipboard.readText();
-                document.getElementById('srcText').value = t;
-            } catch(e) { alert("Enable clipboard access"); }
-        }
-
-        function doClear() {
-            document.getElementById('srcText').value = "";
-            document.getElementById('outText').innerText = "...";
-            window.speechSynthesis.cancel();
-        }
-
-        async function doTranslate() {
-            const txt = document.getElementById('srcText').value.trim();
-            const lang = document.getElementById('userLang').value;
-            const out = document.getElementById('outText');
-            if(!txt) return;
-
-            out.innerText = "Processing...";
-            try {
-                const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(txt)}&langpair=en|${lang}&de=pro_user@genlingo.com`);
+                // Using a specific pair code for better engine matching
+                const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${langCode}&de=pro_engine@genlingo.com`);
                 const data = await res.json();
-                out.innerText = data.responseData.translatedText;
-            } catch(e) { out.innerText = "Offline/Error"; }
-        }
-
-        function doVoice() {
-            const vBtn = document.getElementById('voiceBtn');
-            const text = document.getElementById('outText').innerText;
-            const langCode = document.getElementById('userLang').value;
-
-            if (window.speechSynthesis.speaking) {
-                window.speechSynthesis.cancel();
-                vBtn.classList.remove('speaking');
-                vBtn.innerText = "SPEAK 🔊";
-                return;
+                
+                // If API returns a strange match, we show an error instead of wrong text
+                if(data.responseStatus !== 200) throw new Error();
+                output.innerText = data.responseData.translatedText;
+            } catch(e) {
+                output.innerText = "Connection Error. Please try again.";
             }
-
-            const utterance = new SpeechSynthesisUtterance(text);
-            const voices = window.speechSynthesis.getVoices();
-            
-            // Advanced voice matching for Malayalam/Tamil
-            const voice = voices.find(v => v.lang.startsWith(langCode)) || 
-                          voices.find(v => v.lang.includes('IN'));
-
-            utterance.voice = voice;
-            utterance.lang = langCode + "-IN";
-            utterance.rate = 0.9; // Slightly slower for better clarity in regional languages
-
-            utterance.onstart = () => { vBtn.classList.add('speaking'); vBtn.innerText = "STOP 🛑"; };
-            utterance.onend = () => { vBtn.classList.remove('speaking'); vBtn.innerText = "SPEAK 🔊"; };
-            
-            window.speechSynthesis.speak(utterance);
         }
 
-        async function doPDF() {
+        // 3. Fluent Voice Logic (ResponsiveVoice Engine)
+        function speakTranslation() {
+            const btn = document.getElementById('voiceBtn');
+            const text = document.getElementById('targetOutput').innerText;
+            const voice = document.getElementById('userLang').value;
+
+            if (responsiveVoice.isPlaying()) {
+                responsiveVoice.cancel();
+                btn.classList.remove('is-speaking');
+                btn.innerText = "LISTEN 🔊";
+            } else {
+                responsiveVoice.speak(text, voice, {
+                    pitch: 1,
+                    rate: 1,
+                    onstart: () => {
+                        btn.classList.add('is-speaking');
+                        btn.innerText = "STOP 🛑";
+                    },
+                    onend: () => {
+                        btn.classList.remove('is-speaking');
+                        btn.innerText = "LISTEN 🔊";
+                    }
+                });
+            }
+        }
+
+        // 4. Utility Functions
+        async function pasteText() {
+            const t = await navigator.clipboard.readText();
+            document.getElementById('srcInput').value = t;
+        }
+
+        function clearAll() {
+            document.getElementById('srcInput').value = "";
+            document.getElementById('targetOutput').innerText = "...";
+            responsiveVoice.cancel();
+        }
+
+        async function savePDF() {
             const { jsPDF } = window.jspdf;
-            const canvas = await html2canvas(document.getElementById('outCard'), { backgroundColor: '#161b22', scale: 2 });
+            const canvas = await html2canvas(document.getElementById('outputCard'), { backgroundColor: '#161b22', scale: 3 });
             const doc = new jsPDF();
-            doc.text("GenLingo Pro Export", 10, 15);
-            doc.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 25, 185, 0);
-            doc.save("GenLingo.pdf");
-        }
-
-        function installApp() {
-            if (!deferredPrompt) {
-                alert("To install: Tap the browser menu (⋮) and select 'Add to Home screen'");
-                return;
-            }
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choice) => {
-                if (choice.outcome === 'accepted') console.log('User installed app');
-                deferredPrompt = null;
-            });
+            doc.setFontSize(10);
+            doc.text("GenLingo Pro Official Translation", 15, 15);
+            doc.addImage(canvas.toDataURL('image/png'), 'PNG', 15, 25, 180, 0);
+            doc.save("GenLingo_Export.pdf");
         }
     </script>
 </body>
