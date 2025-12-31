@@ -2,85 +2,92 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="manifest" href="manifest.json">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GenLingo Pro</title>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
-        :root { --primary: #2563eb; --bg: #0d1117; --card: #161b22; --text: #f0f6fc; --lamp-on: #4ade80; --lamp-off: #30363d; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; transition: 0.3s; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; padding-bottom: 120px; color: var(--text); }
+        :root { --primary: #2563eb; --bg: #0d1117; --card: #161b22; --text: #f0f6fc; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        body { background: var(--bg); margin: 0; padding: 20px; color: var(--text); overflow-x: hidden; }
 
-        /* --- SPLASH SCREEN --- */
-        #splash { position: fixed; inset: 0; background: #070a13; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 1s cubic-bezier(0.4, 0, 0.2, 1); }
-        .lamp-wrapper { position: relative; width: 140px; height: 220px; display: flex; flex-direction: column; align-items: center; }
-        .lamp-head { width: 85px; height: 55px; background: var(--lamp-off); border-radius: 40px 40px 10px 10px; position: relative; z-index: 5; }
-        .pull-string { position: absolute; top: 55px; right: 35px; width: 2px; height: 70px; background: #94a3b8; z-index: 4; cursor: pointer; }
-        .string-handle { position: absolute; bottom: -10px; left: -4px; width: 10px; height: 10px; background: #fbbf24; border-radius: 50%; }
-        .light-glow { position: absolute; top: 50px; width: 200px; height: 150px; background: radial-gradient(ellipse at top, rgba(74, 222, 128, 0.2), transparent 70%); opacity: 0; }
-        .lamp-on .lamp-head { background: var(--lamp-on); box-shadow: 0 0 30px rgba(74, 222, 128, 0.3); }
-        .lamp-on .light-glow { opacity: 1; }
+        /* --- ROTATING LOGO SPLASH --- */
+        #splash { 
+            position: fixed; inset: 0; background: #070a13; z-index: 10000; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            transition: 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .logo-container { position: relative; width: 150px; height: 150px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .outer-ring { 
+            position: absolute; width: 120px; height: 120px; 
+            border: 4px solid #30363d; border-top: 4px solid var(--primary); 
+            border-radius: 50%; transition: 0.6s ease; 
+        }
+        .inner-symbol { 
+            width: 60px; height: 60px; background: var(--primary); 
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); 
+            transition: 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55); 
+        }
+        /* Activation States */
+        .logo-active .outer-ring { transform: rotate(360deg); border-color: var(--primary); }
+        .logo-active .inner-symbol { transform: rotate(720deg) scale(1.2); background: #4ade80; }
+        
+        .enter-text { margin-top: 30px; color: #8b949e; font-size: 11px; letter-spacing: 3px; font-weight: bold; animation: pulse 2s infinite; }
+        @keyframes pulse { 50% { opacity: 0.2; } }
 
-        /* --- MAIN UI --- */
+        /* --- MAIN INTERFACE --- */
         .glass-card { background: var(--card); border-radius: 20px; padding: 18px; margin-bottom: 15px; position: relative; border: 1px solid #30363d; }
         .label { font-size: 10px; font-weight: 800; color: #8b949e; text-transform: uppercase; margin-bottom: 10px; display: block; }
-        textarea { width: 100%; height: 120px; border: none; font-size: 18px; background: transparent; outline: none; resize: none; color: var(--text); }
+        textarea { width: 100%; height: 110px; border: none; font-size: 18px; background: transparent; outline: none; resize: none; color: var(--text); }
         
-        /* Action Buttons inside Cards */
         .card-actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; }
-        .mini-btn { background: #30363d; border: none; border-radius: 8px; padding: 4px 8px; color: #c9d1d9; font-size: 10px; font-weight: bold; cursor: pointer; }
+        .mini-btn { background: #30363d; border: none; border-radius: 8px; padding: 5px 10px; color: #c9d1d9; font-size: 10px; font-weight: bold; cursor: pointer; }
 
-        .progress-bar { width: 100%; height: 4px; background: #30363d; border-radius: 2px; margin-bottom: 10px; display: none; overflow: hidden; }
-        .progress-fill { height: 100%; width: 0%; background: var(--primary); transition: 0.3s; }
+        .lang-select { width: 100%; padding: 14px; border-radius: 12px; background: var(--card); border: 1px solid #30363d; color: var(--text); font-weight: bold; margin-bottom: 15px; appearance: none; }
 
-        .lang-select { width: 100%; padding: 14px; border-radius: 12px; background: var(--card); border: 1px solid #30363d; color: var(--text); font-weight: bold; margin-bottom: 15px; }
-
-        .bottom-nav { position: fixed; bottom: 25px; left: 15px; right: 15px; background: #161b22; padding: 8px; border-radius: 20px; display: flex; gap: 8px; border: 1px solid #30363d; }
+        .bottom-nav { position: fixed; bottom: 25px; left: 15px; right: 15px; background: #161b22; padding: 8px; border-radius: 20px; display: flex; gap: 8px; border: 1px solid #30363d; z-index: 999; }
         .nav-btn { flex: 1; height: 50px; border-radius: 15px; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
         .btn-main { flex: 2.5; background: var(--primary); font-weight: bold; font-size: 15px; }
         
-        .speaking { background: #be123c !important; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 50% { opacity: 0.7; } }
+        .speaking { background: #be123c !important; animation: blink-voice 1.5s infinite; }
+        @keyframes blink-voice { 50% { opacity: 0.6; } }
     </style>
 </head>
 <body>
 
     <div id="splash">
-        <div class="lamp-wrapper" id="lampUI">
-            <div class="lamp-head"></div>
-            <div class="pull-string" onclick="initApp()"><div class="string-handle"></div></div>
-            <div class="light-glow"></div>
+        <div class="logo-container" onclick="startApp()">
+            <div class="outer-ring"></div>
+            <div class="inner-symbol"></div>
         </div>
-        <div style="color:#8b949e; font-size:12px; margin-top:30px; letter-spacing:2px;">PULL STRING TO START</div>
+        <div class="enter-text" id="statusMsg">TAP TO OPEN</div>
     </div>
 
-    <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-        <h2 style="margin:0; font-size:20px;">GenLingo <span style="color:var(--primary)">PRO</span></h2>
+    <header style="margin-bottom:15px;">
+        <h2 style="margin:0;">GenLingo <span style="color:var(--primary)">PRO</span></h2>
     </header>
 
     <select id="userLang" class="lang-select">
         <option value="hi" selected>Hindi (हिन्दी)</option>
         <option value="ml">Malayalam (മലയാളം)</option>
         <option value="ta">Tamil (தமிழ்)</option>
+        <option value="te">Telugu (తెలుగు)</option>
     </select>
 
     <div class="glass-card">
         <div class="card-actions">
-            <button class="mini-btn" onclick="pasteText()">PASTE</button>
-            <button class="mini-btn" onclick="clearText()">CLEAR</button>
+            <button class="mini-btn" onclick="copyFromClipboard()">PASTE</button>
+            <button class="mini-btn" onclick="clearInp()">CLEAR</button>
         </div>
         <span class="label">English Source</span>
-        <textarea id="sourceInp" placeholder="Type or paste here..."></textarea>
+        <textarea id="sourceInp" placeholder="Enter text..."></textarea>
     </div>
-
-    <div class="progress-bar" id="pBox"><div class="progress-fill" id="pFill"></div></div>
 
     <div class="glass-card" id="outCard">
         <div class="card-actions">
-            <button class="mini-btn" id="voiceBtn" onclick="toggleSpeech()">SPEAK 🔊</button>
+            <button class="mini-btn" id="voiceBtn" onclick="toggleAudio()">SPEAK 🔊</button>
         </div>
         <span class="label">Translation</span>
         <div id="targetOut" style="font-size:20px; min-height:50px; color:var(--primary); font-weight:600;">...</div>
@@ -88,28 +95,36 @@
 
     <div class="bottom-nav">
         <button class="nav-btn" onclick="location.reload()">🔄</button>
-        <button class="nav-btn btn-main" onclick="startTr()">TRANSLATE</button>
-        <button class="nav-btn" onclick="dlPDF()">📥</button>
+        <button class="nav-btn btn-main" onclick="runTranslation()">TRANSLATE</button>
+        <button class="nav-btn" onclick="exportToPDF()">📥</button>
     </div>
 
     <script>
-        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
+        const audioSfx = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
         const source = document.getElementById('sourceInp');
         const target = document.getElementById('targetOut');
         const voiceBtn = document.getElementById('voiceBtn');
 
-        function initApp() {
-            audio.play().catch(()=>{});
-            document.getElementById('lampUI').classList.add('lamp-on');
-            setTimeout(() => { document.getElementById('splash').style.transform = "translateY(-100%)"; }, 600);
+        function startApp() {
+            document.querySelector('.logo-container').classList.add('logo-active');
+            audioSfx.play().catch(()=>{});
+            if(navigator.vibrate) navigator.vibrate([40, 40, 40]);
+            
+            setTimeout(() => {
+                const splash = document.getElementById('splash');
+                splash.style.transform = "scale(1.2)";
+                splash.style.opacity = "0";
+                setTimeout(() => splash.style.display = 'none', 800);
+            }, 1000);
         }
 
-        async function pasteText() {
-            const text = await navigator.clipboard.readText();
-            source.value = text;
+        async function copyFromClipboard() {
+            try {
+                source.value = await navigator.clipboard.readText();
+            } catch(e) { alert("Enable clipboard permissions"); }
         }
 
-        function clearText() {
+        function clearInp() {
             source.value = "";
             target.innerText = "...";
             window.speechSynthesis.cancel();
@@ -117,51 +132,47 @@
             voiceBtn.innerText = "SPEAK 🔊";
         }
 
-        async function startTr() {
-            const text = source.value.trim();
+        async function runTranslation() {
+            const val = source.value.trim();
             const lang = document.getElementById('userLang').value;
-            if(!text) return;
+            if(!val) return;
 
             target.innerText = "Processing...";
-            document.getElementById('pBox').style.display = 'block';
             
-            const chunks = text.match(/[\s\S]{1,450}/g) || [];
-            let result = "";
-
             try {
-                for (let i = 0; i < chunks.length; i++) {
-                    const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunks[i])}&langpair=en|${lang}`);
-                    const data = await res.json();
-                    result += data.responseData.translatedText + " ";
-                    document.getElementById('pFill').style.width = ((i + 1) / chunks.length * 100) + "%";
-                }
-                target.innerText = result.trim();
-            } catch(e) { target.innerText = "Check Connection"; }
-            
-            setTimeout(() => { document.getElementById('pBox').style.display = 'none'; }, 800);
+                // Using contact email to bypass aggressive caching for better accuracy
+                const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(val)}&langpair=en|${lang}&de=pro@genlingo.com`);
+                const data = await res.json();
+                target.innerText = data.responseData.translatedText;
+            } catch(e) {
+                target.innerText = "Check Connection";
+            }
         }
 
-        function toggleSpeech() {
+        function toggleAudio() {
             if (window.speechSynthesis.speaking) {
                 window.speechSynthesis.cancel();
                 voiceBtn.classList.remove('speaking');
                 voiceBtn.innerText = "SPEAK 🔊";
             } else {
-                const utter = new SpeechSynthesisUtterance(target.innerText);
-                utter.lang = document.getElementById('userLang').value + "-IN";
-                utter.onstart = () => { voiceBtn.classList.add('speaking'); voiceBtn.innerText = "STOP 🛑"; };
-                utter.onend = () => { voiceBtn.classList.remove('speaking'); voiceBtn.innerText = "SPEAK 🔊"; };
-                window.speechSynthesis.speak(utter);
+                const talk = new SpeechSynthesisUtterance(target.innerText);
+                talk.lang = document.getElementById('userLang').value + "-IN";
+                talk.onstart = () => { voiceBtn.classList.add('speaking'); voiceBtn.innerText = "STOP 🛑"; };
+                talk.onend = () => { voiceBtn.classList.remove('speaking'); voiceBtn.innerText = "SPEAK 🔊"; };
+                window.speechSynthesis.speak(talk);
             }
         }
 
-        async function dlPDF() {
+        async function exportToPDF() {
             const { jsPDF } = window.jspdf;
-            const canvas = await html2canvas(document.getElementById('outCard'), { backgroundColor: '#161b22' });
+            const canvas = await html2canvas(document.getElementById('outCard'), { backgroundColor: '#161b22', scale: 2 });
             const doc = new jsPDF();
-            doc.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 20, 180, 0);
-            doc.save("GenLingo.pdf");
+            doc.text("GenLingo Pro Export", 10, 15);
+            doc.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 25, 185, 0);
+            doc.save("GenLingo_Pro.pdf");
         }
     </script>
 </body>
 </html>
+
+
