@@ -11,38 +11,15 @@
     <style>
         :root { --primary: #2563eb; --bg: #0d1117; --card: #161b22; --text: #f0f6fc; --accent: #4ade80; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: sans-serif; }
-        body { background: var(--bg); margin: 0; padding: 20px; color: var(--text); overflow-x: hidden; }
+        body { background: var(--bg); margin: 0; padding: 20px; color: var(--text); overflow-x: hidden; padding-bottom: 110px; }
 
         /* --- ROTATING CIRCLE SPLASH --- */
-        #splash { 
-            position: fixed; inset: 0; background: #070a13; z-index: 10000; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
+        #splash { position: fixed; inset: 0; background: #070a13; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.8s ease; }
         .seal-container { position: relative; width: 160px; height: 160px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        
-        /* The Rotating Outer Circle */
-        .seal-outer { 
-            position: absolute; width: 130px; height: 130px; 
-            border: 4px dashed var(--primary); border-radius: 50%; 
-            transition: 1s cubic-bezier(0.68, -0.55, 0.27, 1.55); 
-        }
-
-        /* The Inner Rotating Symbol (Hexagon) */
-        .seal-inner { 
-            width: 70px; height: 70px; background: var(--primary); 
-            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); 
-            transition: 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900;
-        }
-
-        /* Activation Animation */
+        .seal-outer { position: absolute; width: 130px; height: 130px; border: 4px dashed var(--primary); border-radius: 50%; transition: 1s ease; }
+        .seal-inner { width: 70px; height: 70px; background: var(--primary); clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); transition: 0.8s ease; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 24px; }
         .active .seal-outer { transform: rotate(360deg); border-style: solid; border-color: var(--accent); }
         .active .seal-inner { transform: rotate(-720deg) scale(1.1); background: var(--accent); }
-
-        .hint { margin-top: 30px; color: #8b949e; font-size: 12px; letter-spacing: 2px; font-weight: bold; animation: pulse 2s infinite; }
-        @keyframes pulse { 50% { opacity: 0.2; } }
 
         /* --- APP UI --- */
         .glass-card { background: var(--card); border-radius: 20px; padding: 18px; margin-bottom: 15px; position: relative; border: 1px solid #30363d; }
@@ -52,11 +29,15 @@
         .card-actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; }
         .mini-btn { background: #30363d; border: none; border-radius: 8px; padding: 5px 10px; color: #c9d1d9; font-size: 10px; font-weight: bold; cursor: pointer; }
 
-        .bottom-nav { position: fixed; bottom: 25px; left: 15px; right: 15px; background: #161b22; padding: 8px; border-radius: 20px; display: flex; gap: 8px; border: 1px solid #30363d; }
+        .lang-select { width:100%; padding:14px; border-radius:12px; background:var(--card); border:1px solid #30363d; color:var(--text); font-weight:bold; margin-bottom:15px; appearance: none; }
+
+        .bottom-nav { position: fixed; bottom: 20px; left: 15px; right: 15px; background: #161b22; padding: 8px; border-radius: 20px; display: flex; gap: 6px; border: 1px solid #30363d; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .nav-btn { flex: 1; height: 50px; border-radius: 15px; border: none; color: white; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
-        .btn-main { flex: 2.5; background: var(--primary); font-weight: bold; font-size: 15px; }
+        .btn-main { flex: 2; background: var(--primary); font-weight: bold; font-size: 14px; }
+        .btn-install { background: #30363d; font-size: 12px; font-weight: bold; color: var(--accent); border: 1px solid var(--accent); }
         
-        .speaking { background: #be123c !important; }
+        .speaking { background: #be123c !important; animation: pulse-speak 1s infinite; }
+        @keyframes pulse-speak { 50% { opacity: 0.7; } }
     </style>
 </head>
 <body>
@@ -66,17 +47,20 @@
             <div class="seal-outer"></div>
             <div class="seal-inner">G</div>
         </div>
-        <div class="hint" id="hint">CLICK CIRCLE TO ENTER</div>
+        <div style="margin-top:20px; color:#8b949e; letter-spacing:2px; font-size:11px; font-weight:bold;">CLICK SEAL TO START</div>
     </div>
 
-    <header style="margin-bottom:15px;">
-        <h2 style="margin:0;">GenLingo <span style="color:var(--primary)">PRO</span></h2>
+    <header style="margin-bottom:15px; display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin:0; font-size: 20px;">GenLingo <span style="color:var(--primary)">PRO</span></h2>
     </header>
 
-    <select id="userLang" style="width:100%; padding:14px; border-radius:12px; background:var(--card); border:1px solid #30363d; color:var(--text); font-weight:bold; margin-bottom:15px;">
-        <option value="hi" selected>Hindi (हिन्दी)</option>
+    <select id="userLang" class="lang-select">
+        <option value="hi">Hindi (हिन्दी)</option>
         <option value="ml">Malayalam (മലയാളം)</option>
         <option value="ta">Tamil (தமிழ்)</option>
+        <option value="te">Telugu (తెలుగు)</option>
+        <option value="kn">Kannada (ಕನ್ನಡ)</option>
+        <option value="bn">Bengali (বাংলা)</option>
     </select>
 
     <div class="glass-card">
@@ -85,7 +69,7 @@
             <button class="mini-btn" onclick="doClear()">CLEAR</button>
         </div>
         <span class="label">English Source</span>
-        <textarea id="srcText" placeholder="Type here..."></textarea>
+        <textarea id="srcText" placeholder="Type or paste text here..."></textarea>
     </div>
 
     <div class="glass-card" id="outCard">
@@ -93,31 +77,45 @@
             <button class="mini-btn" id="voiceBtn" onclick="doVoice()">SPEAK 🔊</button>
         </div>
         <span class="label">Translation</span>
-        <div id="outText" style="font-size:20px; min-height:50px; color:var(--primary); font-weight:600;">...</div>
+        <div id="outText" style="font-size:20px; min-height:50px; color:var(--primary); font-weight:600; line-height:1.4;">...</div>
     </div>
 
     <div class="bottom-nav">
         <button class="nav-btn" onclick="location.reload()">🔄</button>
+        <button class="nav-btn btn-install" onclick="installApp()">INSTALL</button>
         <button class="nav-btn btn-main" onclick="doTranslate()">TRANSLATE</button>
         <button class="nav-btn" onclick="doPDF()">📥</button>
     </div>
 
     <script>
+        let deferredPrompt;
+
+        // Warm up voices for ML and TA
+        window.onload = () => { 
+            window.speechSynthesis.getVoices(); 
+            // PWA Install Logic
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+            });
+        };
+
         function openApp(el) {
             el.classList.add('active');
-            document.getElementById('hint').innerText = "OPENING...";
-            if(navigator.vibrate) navigator.vibrate([50, 50, 50]);
-            
+            if(navigator.vibrate) navigator.vibrate(50);
             setTimeout(() => {
                 const s = document.getElementById('splash');
                 s.style.opacity = '0';
-                s.style.transform = 'scale(1.5)';
+                s.style.transform = 'scale(1.2)';
                 setTimeout(() => s.style.display = 'none', 800);
             }, 1000);
         }
 
         async function doPaste() {
-            document.getElementById('srcText').value = await navigator.clipboard.readText();
+            try {
+                const t = await navigator.clipboard.readText();
+                document.getElementById('srcText').value = t;
+            } catch(e) { alert("Enable clipboard access"); }
         }
 
         function doClear() {
@@ -132,28 +130,41 @@
             const out = document.getElementById('outText');
             if(!txt) return;
 
-            out.innerText = "Working...";
+            out.innerText = "Processing...";
             try {
-                // Using contact email avoids common cached errors like "Good morning/night"
-                const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(txt)}&langpair=en|${lang}&de=pro_app@genlingo.com`);
+                const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(txt)}&langpair=en|${lang}&de=pro_user@genlingo.com`);
                 const data = await res.json();
                 out.innerText = data.responseData.translatedText;
-            } catch(e) { out.innerText = "Error!"; }
+            } catch(e) { out.innerText = "Offline/Error"; }
         }
 
         function doVoice() {
             const vBtn = document.getElementById('voiceBtn');
+            const text = document.getElementById('outText').innerText;
+            const langCode = document.getElementById('userLang').value;
+
             if (window.speechSynthesis.speaking) {
                 window.speechSynthesis.cancel();
                 vBtn.classList.remove('speaking');
                 vBtn.innerText = "SPEAK 🔊";
-            } else {
-                const u = new SpeechSynthesisUtterance(document.getElementById('outText').innerText);
-                u.lang = document.getElementById('userLang').value + "-IN";
-                u.onstart = () => { vBtn.classList.add('speaking'); vBtn.innerText = "STOP 🛑"; };
-                u.onend = () => { vBtn.classList.remove('speaking'); vBtn.innerText = "SPEAK 🔊"; };
-                window.speechSynthesis.speak(u);
+                return;
             }
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            const voices = window.speechSynthesis.getVoices();
+            
+            // Advanced voice matching for Malayalam/Tamil
+            const voice = voices.find(v => v.lang.startsWith(langCode)) || 
+                          voices.find(v => v.lang.includes('IN'));
+
+            utterance.voice = voice;
+            utterance.lang = langCode + "-IN";
+            utterance.rate = 0.9; // Slightly slower for better clarity in regional languages
+
+            utterance.onstart = () => { vBtn.classList.add('speaking'); vBtn.innerText = "STOP 🛑"; };
+            utterance.onend = () => { vBtn.classList.remove('speaking'); vBtn.innerText = "SPEAK 🔊"; };
+            
+            window.speechSynthesis.speak(utterance);
         }
 
         async function doPDF() {
@@ -163,6 +174,18 @@
             doc.text("GenLingo Pro Export", 10, 15);
             doc.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 25, 185, 0);
             doc.save("GenLingo.pdf");
+        }
+
+        function installApp() {
+            if (!deferredPrompt) {
+                alert("To install: Tap the browser menu (⋮) and select 'Add to Home screen'");
+                return;
+            }
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choice) => {
+                if (choice.outcome === 'accepted') console.log('User installed app');
+                deferredPrompt = null;
+            });
         }
     </script>
 </body>
